@@ -4,6 +4,9 @@ import path from 'path';
 import connect from './db/index.js';
 import userModel from './models/user.model.js';
 import productModel from './models/product.model.js';
+import cors from 'cors'
+
+
 
 connect();
 
@@ -11,6 +14,7 @@ const app =express()
 const PORT=3000
 const __dirname=path.resolve();
 
+app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(cookieParser())
@@ -18,7 +22,7 @@ app.use(express.static(path.join(__dirname,'public')))
 
 
 app.get('/data',(req,res)=>{
-    res.send('this is the data')
+    res.json({"msg": 'This is CORS-enabled for a Single Route'})
 })
 
 
