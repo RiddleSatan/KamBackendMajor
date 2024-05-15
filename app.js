@@ -18,16 +18,39 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+// -------------------------------------------get Route----------------------------------------------
 app.get("/data", (req, res) => {
   res.json({ msg: "This is CORS-enabled for a Single Route" });
 });
 
+
+
+
+// -------------------------------------------post Route----------------------------------------------
 app.post("/signup", async (req, res) => {
   const { email, password, fullname, username } = req.body;
   const user = await userModel.create({ email, password, fullname, username });
   console.log(user);
 });
 
+
+
+// --------------------------------------------middleware------------------------------------------------
+
+
+
+
+
+// -------------------------------------------Controllers---------------------------------------------
+
+
+
+
+
+
+
+
+// -------------------------------------------Port----------------------------------------------
 app.listen(PORT, () => {
   console.log(`server is running on PORT: ${PORT}`);
 });
