@@ -28,6 +28,10 @@ app.get("/data", (req, res) => {
   res.json({ msg: "This is CORS-enabled for a Single Route" });
 });
 
+app.get('/login',isLoggedIn,(req,res)=>{
+
+})
+
 // -------------------------------------------post Route----------------------------------------------
 app.post("/signup", async (req, res) => {
   const { email, password, fullname, username } = req.body;
@@ -44,12 +48,33 @@ app.post("/signup", async (req, res) => {
         username,
       });
       console.log(newUser);
-      res.send({ noti: "" });
+      res.send({ noti: "" ,login:true});
+      const token=jwt.sign({email},'secretkey')
+      res.cookie('token',token)
     });
   }
 });
 
+app.post('/login',async (req,res)=>{
+  const {email,password}=req.body
+  let user= await userModel.findOne({email})
+  if (user){
+    bcrypt.compare(password,user.password,(err,result)=>{
+   res.send(result)
+    })
+  }
+})
+
+
 // --------------------------------------------middleware------------------------------------------------
+
+function isLoggedIn(){
+if (req.cookies.token){
+  res.send(true)
+}else{
+  res.send(false)
+}
+}
 
 // -------------------------------------------Controllers---------------------------------------------
 
