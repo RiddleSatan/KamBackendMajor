@@ -9,6 +9,9 @@ import cors from "cors";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { mongo } from "mongoose";
+import 'dotenv/config'
+
+
 
 connect();
 
