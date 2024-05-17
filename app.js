@@ -9,9 +9,7 @@ import cors from "cors";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { mongo } from "mongoose";
-import 'dotenv/config'
-
-
+import "dotenv/config";
 
 connect();
 
@@ -33,18 +31,21 @@ app.get("/data", (req, res) => {
 // -------------------------------------------post Route----------------------------------------------
 app.post("/signup", async (req, res) => {
   const { email, password, fullname, username } = req.body;
+
   const user = await userModel.findOne({ email });
   if (user) {
-    res.send({noti:"email already registered"});
+    res.send({ noti: "email already registered" });
   } else {
-    const newUser = await userModel.create({
-      email,
-      password,
-      fullname,
-      username,
+    bcrypt.hash(password, 10, async function (err, hash) {
+      const newUser = await userModel.create({
+        email,
+        password: hash,
+        fullname,
+        username,
+      });
+      console.log(newUser);
+      res.send({ noti: "" });
     });
-    console.log(newUser);
-    res.send({noti:""});
   }
 });
 
