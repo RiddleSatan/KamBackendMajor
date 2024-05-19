@@ -24,13 +24,17 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 // -------------------------------------------get Route----------------------------------------------
+
 app.get("/data", (req, res) => {
   res.json({ msg: "This is CORS-enabled for a Single Route" });
 });
 
-app.get('/login',isLoggedIn,(req,res)=>{
+app.get("/profile/:id", async (req, res) => {
+  const { id } = req.params;
 
-})
+  const user = await userModel.findOne({ _id: id });
+  res.send(user)
+});
 
 // -------------------------------------------post Route----------------------------------------------
 app.post("/signup", async (req, res) => {
@@ -48,32 +52,37 @@ app.post("/signup", async (req, res) => {
         username,
       });
       console.log(newUser);
-      res.send({ noti: "" ,login:true});
-      const token=jwt.sign({email},'secretkey')
-      res.cookie('token',token)
+      const token = jwt.sign({ email }, "secretkey");
+      res.cookie("token", token);
+      res.send({ noti: "", login: true, id: newUser._id });
     });
   }
 });
 
-app.post('/login',async (req,res)=>{
-  const {email,password}=req.body
-  let user= await userModel.findOne({email})
-  if (user){
-    bcrypt.compare(password,user.password,(err,result)=>{
-   res.send(result)
-    })
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  let user = await userModel.findOne({ email });
+  if (user) {
+    bcrypt.compare(password, user.password, (err, result) => {
+      res.send(result);
+    });
   }
-})
+});
 
+app.post("/logout", (req, res) => {
+  if (req.cookies.token) {
+    req.cookies.token = "";
+  }
+});
 
 // --------------------------------------------middleware------------------------------------------------
 
-function isLoggedIn(){
-if (req.cookies.token){
-  res.send(true)
-}else{
-  res.send(false)
-}
+function isLoggedIn() {
+  if (req.cookies.token) {
+    res.send(true);
+  } else {
+    res.send(false);
+  }
 }
 
 // -------------------------------------------Controllers---------------------------------------------
