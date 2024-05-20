@@ -68,7 +68,7 @@ app.post("/login", async (req, res) => {
   let user = await userModel.findOne({ email });
   if (user) {
     bcrypt.compare(password, user.password, (err, result) => {
-      res.send(result);
+      res.send({result,id:user._id});
     });
   }
 });
