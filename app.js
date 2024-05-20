@@ -24,6 +24,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 // -------------------------------------------get Route----------------------------------------------
+app.get('/',(req,res)=>{
+
+})
 
 app.get("/data", (req, res) => {
   res.json({ msg: "This is CORS-enabled for a Single Route" });
@@ -57,6 +60,7 @@ app.post("/signup", async (req, res) => {
       res.send({ noti: "", login: true, id: newUser._id });
     });
   }
+  
 });
 
 app.post("/login", async (req, res) => {
