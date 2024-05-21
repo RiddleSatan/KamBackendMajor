@@ -8,7 +8,6 @@ import cartModel from "./models/cart.model.js";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { mongo } from "mongoose";
 import "dotenv/config";
 
 connect();
@@ -16,7 +15,7 @@ connect();
 const app = express();
 const PORT = 3000;
 const __dirname = path.resolve();
-
+ 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -25,7 +24,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // -------------------------------------------get Route----------------------------------------------
 app.get("/check", isLoggedIn, (req, res) => {
-  res.send(true) ;
+  res.send(true);
 });
 
 app.get("/data", (req, res) => {
@@ -52,7 +51,7 @@ app.post("/signup", async (req, res) => {
         email,
         password: hash,
         fullname,
-        username, 
+        username,
       });
       console.log(newUser);
       const token = jwt.sign({ email }, "secretkey");
@@ -67,24 +66,25 @@ app.post("/login", async (req, res) => {
   let user = await userModel.findOne({ email });
   if (user) {
     bcrypt.compare(password, user.password, (err, result) => {
+      const token = jwt.sign({ email }, "secretkey");
       res.send({ result, id: user._id });
-    });
+      // res.cookie("token", token);
+    });  
   }
 });
 
-app.post("/logout", (req, res) => {
+app.post("/logout", (req, res) => { 
   if (req.cookies.token) {
-    res.clearCookie('token');
+    res.clearCookie("token");
     res.send(true);
-  }
-  else{
-    res.send(true)
+  } else {
+    res.send(true);
   }
 });
 
 // --------------------------------------------middleware------------------------------------------------
 
-function isLoggedIn(req,res,next) {
+function isLoggedIn(req, res, next) {
   if (req.cookies.token) {
     next();
   } else {
