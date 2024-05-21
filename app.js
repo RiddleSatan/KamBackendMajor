@@ -24,9 +24,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 // -------------------------------------------get Route----------------------------------------------
-app.get('/',(req,res)=>{
-
-})
+app.get("/check", isLoggedIn, (req, res) => {
+  res.send(true) ;
+});
 
 app.get("/data", (req, res) => {
   res.json({ msg: "This is CORS-enabled for a Single Route" });
@@ -36,7 +36,7 @@ app.get("/profile/:id", async (req, res) => {
   const { id } = req.params;
 
   const user = await userModel.findOne({ _id: id });
-  res.send(user)
+  res.send(user);
 });
 
 // -------------------------------------------post Route----------------------------------------------
@@ -52,7 +52,7 @@ app.post("/signup", async (req, res) => {
         email,
         password: hash,
         fullname,
-        username,
+        username, 
       });
       console.log(newUser);
       const token = jwt.sign({ email }, "secretkey");
@@ -60,7 +60,6 @@ app.post("/signup", async (req, res) => {
       res.send({ noti: "", login: true, id: newUser._id });
     });
   }
-  
 });
 
 app.post("/login", async (req, res) => {
@@ -68,24 +67,28 @@ app.post("/login", async (req, res) => {
   let user = await userModel.findOne({ email });
   if (user) {
     bcrypt.compare(password, user.password, (err, result) => {
-      res.send({result,id:user._id});
+      res.send({ result, id: user._id });
     });
   }
 });
 
 app.post("/logout", (req, res) => {
   if (req.cookies.token) {
-    req.cookies.token = "";
+    res.clearCookie('token');
+    res.send(true);
+  }
+  else{
+    res.send(true)
   }
 });
 
 // --------------------------------------------middleware------------------------------------------------
 
-function isLoggedIn() {
+function isLoggedIn(req,res,next) {
   if (req.cookies.token) {
-    res.send(true);
+    next();
   } else {
-    res.send(false);
+    res.status(401).send(false);
   }
 }
 
