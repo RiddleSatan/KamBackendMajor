@@ -67,13 +67,14 @@ app.post("/login", async (req, res) => {
   if (user) {
     bcrypt.compare(password, user.password, (err, result) => {
       const token = jwt.sign({ email }, "secretkey");
+      console.log(token)
+      res.cookie("token", token, { secure: true });
       res.send({ result, id: user._id });
-      // res.cookie("token", token);
     });  
   }
 });
 
-app.post("/logout", (req, res) => { 
+app.post("/logout", (req, res) => {  
   if (req.cookies.token) {
     res.clearCookie("token");
     res.send(true);
@@ -86,7 +87,7 @@ app.post("/logout", (req, res) => {
 
 function isLoggedIn(req, res, next) {
   if (req.cookies.token) {
-    next();
+    next(); 
   } else {
     res.status(401).send(false);
   }
