@@ -83,7 +83,7 @@ app.post("/login", async (req, res) => {
         sameSite: 'None',
       });
       
-      res.send({ result, id: user._id });
+      res.status(200).send({ result, id: user._id });
     });  
   }
 });
