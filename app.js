@@ -16,7 +16,11 @@ const app = express();
 const PORT = 3000;
 const __dirname = path.resolve();
  
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // your React app's origin
+  credentials: true,
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -55,7 +59,11 @@ app.post("/signup", async (req, res) => {
       });
       console.log(newUser);
       const token = jwt.sign({ email }, "secretkey");
-      res.cookie("token", token);
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None',
+      });
       res.send({ noti: "", login: true, id: newUser._id });
     });
   }
@@ -65,14 +73,22 @@ app.post("/login", async (req, res) => {
   const { email, password } = req.body;
   let user = await userModel.findOne({ email });
   if (user) {
-    bcrypt.compare(password, user.password, (err, result) => {
+    bcrypt.compare(password, user.password, (err, result) => { 
       const token = jwt.sign({ email }, "secretkey");
-      console.log(token)
-      res.cookie("token", token, { secure: true });
+      // console.log(token)
+      // res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'None' });     
+      res.cookie('token', token, {
+        httpOnly: true,
+        // secure: true, // Remove this line for development
+        sameSite: 'None',
+      });
+      
       res.send({ result, id: user._id });
     });  
   }
 });
+
+
 
 app.post("/logout", (req, res) => {  
   if (req.cookies.token) {
