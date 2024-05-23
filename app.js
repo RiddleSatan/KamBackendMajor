@@ -64,7 +64,7 @@ app.post("/signup", async (req, res) => {
         secure: true,
         sameSite: 'None',
       });
-      res.send({ noti: "", login: true, id: newUser._id });
+      res.send({ noti: "", login: true, id: newUser._id ,email:newUser.email});
     });
   }
 });
