@@ -70,19 +70,19 @@ app.post("/signup", async (req, res) => {
 });
 
 app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password } = req.body; 
   let user = await userModel.findOne({ email });
   if (user) {
     bcrypt.compare(password, user.password, (err, result) => { 
       const token = jwt.sign({ email }, "secretkey");
       // console.log(token)
-      // res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'None' });     
+      // res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'None' });
       res.cookie('token', token, {
         httpOnly: true,
         // secure: true, // Remove this line for development
         sameSite: 'None',
       });
-      
+       
       res.status(200).send({ result, id: user._id });
     });  
   }
