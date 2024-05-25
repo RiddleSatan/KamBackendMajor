@@ -27,6 +27,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 // -------------------------------------------get Route----------------------------------------------
+app.get('/getCookies',isLoggedIn,(req,res)=>{
+    console.log('token exist')
+})
+
 app.get("/check", isLoggedIn, (req, res) => {
   res.send(true);
 });
@@ -41,6 +45,15 @@ app.get("/profile/:id", async (req, res) => {
   const user = await userModel.findOne({ _id: id });
   res.send(user);
 });
+
+app.get('/checkToken' ,(req,res)=>{
+  try {
+    let decoded = jwt.verify(token, 'secretkey');
+    console.log(decoded)
+  } catch(err) {
+    console.log(err)
+  }
+})
 
 // -------------------------------------------post Route----------------------------------------------
 app.post("/signup", async (req, res) => {
@@ -59,13 +72,9 @@ app.post("/signup", async (req, res) => {
       });
       console.log(newUser);
       const token = jwt.sign({ email }, "secretkey");
-      res.cookie('token', token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'None',
-      });
+      res.cookie('token', token);
       res.send({ noti: "", login: true, id: newUser._id ,email:newUser.email});
-    });
+    }); 
   }
 });
 
@@ -77,11 +86,7 @@ app.post("/login", async (req, res) => {
       const token = jwt.sign({ email }, "secretkey");
       // console.log(token)
       // res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'None' });
-      res.cookie('token', token, {
-        httpOnly: true,
-        // secure: true, // Remove this line for development
-        sameSite: 'None',
-      });
+      res.cookie('token',token,);
        
       res.status(200).send({ result, id: user._id });
     });  
@@ -101,13 +106,29 @@ app.post("/logout", (req, res) => {
 
 // --------------------------------------------middleware------------------------------------------------
 
+// Middleware for checking token and authorization
 function isLoggedIn(req, res, next) {
-  if (req.cookies.token) {
-    next(); 
-  } else {
+  // Extract token from request header (assuming 'Authorization' header)
+  const token = req.headers.authorization?.split(' ')[1]; // Assuming format 'Bearer <token>'
+
+  if (!token) {
+    // No token present, unauthorized
+    return res.status(401).send(false);
+    console.log(false)
+  }
+
+  try {
+    // Implement your token validation logic here (e.g., JWT decoding and signature verification)
+    const decoded = jwt.verify(token, 'secretkey'); // Replace with your validation logic
+    req.user = decoded; // Store decoded user data for further use (optional)
+    next();
+  } catch (err) {
+    // Invalid token, unauthorized
+    console.error('Invalid token:', err);
     res.status(401).send(false);
   }
 }
+
 
 // -------------------------------------------Controllers---------------------------------------------
 
