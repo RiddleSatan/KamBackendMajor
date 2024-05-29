@@ -34,12 +34,11 @@ app.get("/getCurrentUser", async (req, res) => {
   const token = req.cookies.token;
   if (token) {
     let data = jwt.verify(token, "secretkey");
-    const userData= await userModel.findOne({_id:data.userId})
-    console.log(userData)
-     res.send(userData)
+    const userData = await userModel.findOne({ _id: data.userId });
+    console.log(userData);
+    res.send(userData);
   }
 });
-
 
 app.get("/data", (req, res) => {
   res.json({ msg: "This is CORS-enabled for a Single Route" });
@@ -51,8 +50,6 @@ app.get("/profile/:id", async (req, res) => {
   const user = await userModel.findOne({ _id: id });
   res.send(user);
 });
-
-
 
 // -------------------------------------------post Route----------------------------------------------
 app.post("/signup", async (req, res) => {
@@ -69,8 +66,11 @@ app.post("/signup", async (req, res) => {
         fullname,
         username,
       });
-      console.log(newUser);
-      const userId=newUser._id
+
+      const userId = newUser._id;
+      const response = await cartModel.create({ userId });
+      newUser.cartId = response._id;
+      await newUser.save();
       const token = jwt.sign({ userId }, "secretkey");
       res.cookie("token", token);
       res.send({
@@ -79,6 +79,7 @@ app.post("/signup", async (req, res) => {
         id: newUser._id,
         email: newUser.email,
       });
+      console.log(newUser);
     });
   }
 });
@@ -86,14 +87,15 @@ app.post("/signup", async (req, res) => {
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
   let user = await userModel.findOne({ email });
-  const userId=user._id
+  const userId = user._id;
   if (user) {
-    bcrypt.compare(password, user.password, (err, result) => {
+    bcrypt.compare(password, user.password, async (err, result) => {
       const token = jwt.sign({ userId }, "secretkey");
       // console.log(token)
       // res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'None' });
       res.cookie("token", token);
 
+      console.log(response);
       res.status(200).send({ result, id: user._id });
     });
   }
@@ -108,10 +110,27 @@ app.post("/logout", (req, res) => {
   }
 });
 
+app.post("/addToCart", async (req, res) => {
+  const { data,id } = req.body
+  const { name, title, description, price, category, image } =data;
+  console.log(name)
+  
+  const user = await userModel.findOne({ _id: id });
+  console.log(user)
+  const newProduct=await productModel.create({name, title, description, price, category, image})
+  const cart=await cartModel.findOne({_id:user.cartId})
+  if (user && cart) {
+    const cart = await cartModel.findOne({ _id: user.cartId });
+    cart.product.push(newProduct._id);
+    await cart.save();
+    console.log(cart)
+  } else {
+    console.log("something went wrong");
+  }
+});
+  
+
 // --------------------------------------------middleware------------------------------------------------
-
-
-
 
 // -------------------------------------------Controllers---------------------------------------------
 

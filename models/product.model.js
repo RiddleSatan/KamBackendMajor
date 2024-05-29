@@ -21,7 +21,7 @@ const productSchema = new mongoose.Schema({
     type: String,
     default: 'default.jpg', 
   },
-  userID:{
+  userId:{
     type:mongoose.Schema.Types.ObjectId,
     ref:'user'
   }

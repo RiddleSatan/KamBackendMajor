@@ -27,6 +27,9 @@ const userSchema = new mongoose.Schema({
       type: String,
       default: 'default.jpg',
     },
+    cartId:{
+      type:String,
+    }
   });
 
 export default mongoose.model('user',userSchema)
