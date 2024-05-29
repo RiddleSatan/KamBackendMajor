@@ -29,13 +29,14 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "publc")));
 
 // -------------------------------------------get Route----------------------------------------------
+
 app.get("/getCurrentUser", async (req, res) => {
   // res.send('currentUserInfo')
   const token = req.cookies.token;
   if (token) {
     let data = jwt.verify(token, "secretkey");
     const userData = await userModel.findOne({ _id: data.userId });
-    console.log(userData);
+    // console.log(userData);
     res.send(userData);
   }
 });
@@ -79,9 +80,21 @@ app.post("/signup", async (req, res) => {
         id: newUser._id,
         email: newUser.email,
       });
-      console.log(newUser);
+      // console.log(newUser);
     });
   }
+});
+
+app.post("/getCart", async (req, res) => {
+  const { id } = req.body;
+
+  const user = await userModel.findOne({ _id: id });
+
+  const cart = await cartModel
+    .findOne({ _id: user.cartId })
+    .populate("product");
+  console.log(cart.product);
+  res.status(200).send(cart.product);
 });
 
 app.post("/login", async (req, res) => {
@@ -111,8 +124,8 @@ app.post("/logout", (req, res) => {
 
 app.post("/addToCart", async (req, res) => {
   const { data, id } = req.body;
-  const { name, title, description, price, category, image } = data; 
- console.log(id)
+  const { name, title, description, price, category, image } = data;
+  //  console.log(id)
 
   const user = await userModel.findOne({ _id: id });
 
@@ -120,17 +133,17 @@ app.post("/addToCart", async (req, res) => {
     name,
     title,
     description,
-    price,  
+    price,
     category,
     image,
   });
-  console.log(user)
+  // console.log(user)
   const cart = await cartModel.findOne({ _id: user.cartId });
   if (user && cart) {
     const cart = await cartModel.findOne({ _id: user.cartId });
     cart.product.push(newProduct._id);
     await cart.save();
-    console.log(cart);
+    // console.log(cart);
 
     res.status(200).send(cart._id);
   } else {
