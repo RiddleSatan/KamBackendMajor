@@ -93,7 +93,7 @@ app.post("/getCart", async (req, res) => {
   const cart = await cartModel
     .findOne({ _id: user.cartId })
     .populate("product");
-  console.log(cart.product);
+  // console.log(cart.product);
   res.status(200).send(cart.product);
 });
 
@@ -122,6 +122,21 @@ app.post("/logout", (req, res) => {
   }
 });
 
+app.post("/removeFromCart", async (req, res) => {
+  const { productId, userId } = req.body;
+  const user = await userModel.findOne({ _id: userId });
+  const cart = await cartModel.findOne({ _id: user.cartId });
+  console.log(productId);
+  if (user && cart) {
+    cart.product = cart.product.filter(id => id != productId);
+    await cart.save();
+    res.status(200).send("removed");
+    console.log(cart.product);
+  } else {
+    console.log("something went wrong");
+  }
+});
+
 app.post("/addToCart", async (req, res) => {
   const { data, id } = req.body;
   const { name, title, description, price, category, image } = data;
@@ -137,13 +152,13 @@ app.post("/addToCart", async (req, res) => {
     category,
     image,
   });
-  // console.log(user)
+  console.log(user);
   const cart = await cartModel.findOne({ _id: user.cartId });
   if (user && cart) {
     const cart = await cartModel.findOne({ _id: user.cartId });
     cart.product.push(newProduct._id);
     await cart.save();
-    // console.log(cart);
+    console.log(cart);
 
     res.status(200).send(cart._id);
   } else {
