@@ -146,7 +146,7 @@ app.post("/addToCart", async (req, res) => {
 
   const newProduct = await productModel.create({
     name,
-    title,
+    title, 
     description,
     price,
     category,
