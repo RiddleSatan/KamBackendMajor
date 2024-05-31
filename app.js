@@ -30,6 +30,10 @@ app.use(express.static(path.join(__dirname, "publc")));
 
 // -------------------------------------------get Route----------------------------------------------
 
+app.get('/',(req,res)=>{
+  res.send('This is home route')
+})
+
 app.get("/getCurrentUser", async (req, res) => {
   // res.send('currentUserInfo')
   const token = req.cookies.token;
