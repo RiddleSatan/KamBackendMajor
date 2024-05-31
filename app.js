@@ -8,7 +8,7 @@ import cartModel from "./models/cart.model.js";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import "dotenv/config";
+import 'dotenv/config'
 
 connect();
 
@@ -18,7 +18,7 @@ const __dirname = path.resolve();
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // your React app's origin
+    origin:process.env.FRONTEND_URL, // your React app's origin
     credentials: true,
   })
 );
