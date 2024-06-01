@@ -101,35 +101,6 @@ app.post("/getCart", async (req, res) => {
   res.status(200).send(cart.product);
 });
 
-// app.post("/login", async (req, res) => {
-//   const { email, password } = req.body;
-//   try {
-//     let user = await userModel.findOne({ email });
-
-//     if (!user) {
-//       res.status(400).send({ success: false, msg: "wrong email/password" });
-//       console.log("wrong email/password");
-//     }else{
-//       const userId = user._id;
-//     bcrypt.compare(password, user.password, async (err, result) => {
-//       const token = jwt.sign({ userId }, "secretkey");
-//       // console.log(token)
-//       // res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'None' });
-//       res.cookie("token", token);
-
-//       res.status(200).send({ result, id: user._id });
-//     });
-//     }
-    
-    
-//   } catch (error) {
-//     res
-//       .status(500)
-//       .json({ success: false, msg: " Server error, please try again later" });
-//     console.log("Server time out");
-//     throw error;
-//   }
-// });
 
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
