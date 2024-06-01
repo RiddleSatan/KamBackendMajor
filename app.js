@@ -62,7 +62,7 @@ app.post("/signup", async (req, res) => {
 
   const user = await userModel.findOne({ email });
   if (user) {
-    res.send({ noti: "email already registered" });
+    res.status(400).send({ noti: "email already registered" });
   } else {
     bcrypt.hash(password, 10, async function (err, hash) {
       const newUser = await userModel.create({
@@ -101,31 +101,69 @@ app.post("/getCart", async (req, res) => {
   res.status(200).send(cart.product);
 });
 
+// app.post("/login", async (req, res) => {
+//   const { email, password } = req.body;
+//   try {
+//     let user = await userModel.findOne({ email });
+
+//     if (!user) {
+//       res.status(400).send({ success: false, msg: "wrong email/password" });
+//       console.log("wrong email/password");
+//     }else{
+//       const userId = user._id;
+//     bcrypt.compare(password, user.password, async (err, result) => {
+//       const token = jwt.sign({ userId }, "secretkey");
+//       // console.log(token)
+//       // res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'None' });
+//       res.cookie("token", token);
+
+//       res.status(200).send({ result, id: user._id });
+//     });
+//     }
+    
+    
+//   } catch (error) {
+//     res
+//       .status(500)
+//       .json({ success: false, msg: " Server error, please try again later" });
+//     console.log("Server time out");
+//     throw error;
+//   }
+// });
+
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
   try {
+    console.log("Received login request for email:", email);
+    
     let user = await userModel.findOne({ email });
-
+    
     if (!user) {
-      console.log("wrong email/password");
-      res.status(400).send({ success: false, msg: "wrong email/password" });
+      console.log("No user found with email:", email);
+      return res.status(400).send({ success: false, msg: "wrong email/password" });
     }
+
     const userId = user._id;
-
-    bcrypt.compare(password, user.password, async (err, result) => {
+    bcrypt.compare(password, user.password, (err, result) => {
+      if (err) {
+        console.error("Error comparing passwords:", err);
+        return res.status(500).send({ success: false, msg: "Internal server error" });
+      }
+      
+      if (!result) {
+        console.log("Password mismatch for email:", email);
+        return res.status(400).send({ success: false, msg: "wrong email/password" });
+      }
+      
       const token = jwt.sign({ userId }, "secretkey");
-      // console.log(token)
-      // res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'None' });
-      res.cookie("token", token);
+      console.log("Generated token for user ID:", userId);
 
-      res.status(200).send({ result, id: user._id });
+      res.cookie("token", token);
+      res.status(200).send({ success: true, id: userId });
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ success: false, msg: " Server error, please try again later" });
-    console.log("Server time out");
-    throw error;
+    console.error("Server error:", error);
+    res.status(500).json({ success: false, msg: "Server error, please try again later" });
   }
 });
 
