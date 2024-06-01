@@ -18,7 +18,7 @@ const __dirname = path.resolve();
 
 app.use(
   cors({
-    origin:`${process.env.FRONTEND_URL}`, // your React app's origin
+    origin:process.env.FRONTEND_URL, // your React app's origin
     credentials: true,
   })
 );
