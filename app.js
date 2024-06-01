@@ -8,7 +8,7 @@ import cartModel from "./models/cart.model.js";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import 'dotenv/config'
+import "dotenv/config";
 
 connect();
 
@@ -18,7 +18,7 @@ const __dirname = path.resolve();
 
 app.use(
   cors({
-    origin:process.env.FRONTEND_URL, // your React app's origin
+    origin: process.env.FRONTEND_URL, // your React app's origin
     credentials: true,
   })
 );
@@ -30,9 +30,9 @@ app.use(express.static(path.join(__dirname, "publc")));
 
 // -------------------------------------------get Route----------------------------------------------
 
-app.get('/',(req,res)=>{
-  res.send('This is home route')
-})
+app.get("/", (req, res) => {
+  res.send("This is home route");
+});
 
 app.get("/getCurrentUser", async (req, res) => {
   // res.send('currentUserInfo')
@@ -102,11 +102,16 @@ app.post("/getCart", async (req, res) => {
 });
 
 app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
   try {
-    const { email, password } = req.body;
-  let user = await userModel.findOne({ email });
-  const userId = user._id;
-  if (user) {
+    let user = await userModel.findOne({ email });
+
+    if (!user) {
+      console.log("wrong email/password");
+      res.status(400).send({ success: false, msg: "wrong email/password" });
+    }
+    const userId = user._id;
+
     bcrypt.compare(password, user.password, async (err, result) => {
       const token = jwt.sign({ userId }, "secretkey");
       // console.log(token)
@@ -115,10 +120,12 @@ app.post("/login", async (req, res) => {
 
       res.status(200).send({ result, id: user._id });
     });
-  }
   } catch (error) {
-    console.log('Something wrong with your credentials')
-    throw error
+    res
+      .status(500)
+      .json({ success: false, msg: " Server error, please try again later" });
+    console.log("Server time out");
+    throw error;
   }
 });
 
@@ -137,7 +144,7 @@ app.post("/removeFromCart", async (req, res) => {
   const cart = await cartModel.findOne({ _id: user.cartId });
   console.log(productId);
   if (user && cart) {
-    cart.product = cart.product.filter(id => id != productId);
+    cart.product = cart.product.filter((id) => id != productId);
     await cart.save();
     res.status(200).send("removed");
     console.log(cart.product);
@@ -155,7 +162,7 @@ app.post("/addToCart", async (req, res) => {
 
   const newProduct = await productModel.create({
     name,
-    title, 
+    title,
     description,
     price,
     category,
