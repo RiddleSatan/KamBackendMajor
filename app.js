@@ -102,7 +102,8 @@ app.post("/getCart", async (req, res) => {
 });
 
 app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
   let user = await userModel.findOne({ email });
   const userId = user._id;
   if (user) {
@@ -114,6 +115,10 @@ app.post("/login", async (req, res) => {
 
       res.status(200).send({ result, id: user._id });
     });
+  }
+  } catch (error) {
+    console.log('Something wrong with your credentials')
+    throw error
   }
 });
 
